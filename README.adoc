@@ -1,0 +1,141 @@
+= metafacture-solr-plugin
+:toc:
+
+A plugin for link:https://github.com/metafacture/metafacture-core[metafacture] that extends the standard XML module.
+
+== Build
+
+```
+gradlew test fatJar
+```
+
+Produces `metafacture-solr-VERSION-plugin.jar` in `build/libs` .
+
+Place the build JAR inside the `plugins` directory of your `metafacture-core` distribution.
+
+== Command Reference
+
+|===
+|Command | In | Out
+
+|build-solr-doc
+|StreamReceiver
+|SolrDocumentReceiver
+
+|handle-solr-xml
+|XmlReceiver
+|SolrDocumentReceiver
+
+|to-solr
+|SolrDocumentReceiver
+|Void
+
+|===
+
+=== build-solr-doc
+
+==== Description
+
+Builds a Solr Input Document from metafacture stream events.
+
+The following metafacture events
+
+----
+startRecord("ignored")
+literal("id", "1")
+literal("key", "value")
+endRecord()
+----
+
+would create the following Solr Document
+
+----
+{"id": "1", "key": "value" }
+----
+
+Atomic index updates are handled by the `entity` event.
+
+----
+startRecord("ignored")
+literal("id", "1")
+entity("add")
+literal("name", "alice")
+literal("name", "bob")
+endEntity()
+endRecord()
+----
+
+creates the following Solr Document
+
+----
+{"id": "1", "name": {"add": ["alice", "bob"]}}
+----
+
+See also link:https://lucene.apache.org/solr/guide/7_1/updating-parts-of-documents.html[Updating Parts of Documents].
+
+==== Syntax
+
+```
+build-solr-doc
+```
+
+==== Example
+
+Flux:
+
+```
+... | build-solr-doc | to-solr(...);
+```
+
+=== handle-solr-xml
+
+==== Description
+
+A XML handler for Solr Index Updates.
+
+==== Syntax
+
+```
+handle-solr-xml
+```
+
+==== Example
+
+Flux:
+
+```
+> | decode-xml | handle-solr-xml | ...
+```
+
+=== to-solr
+
+==== Description
+
+A sink that commits Solr Input Documents to a Apache Solr instance.
+
+==== Syntax
+
+```
+to-solr(url, [core], [batchSize], [commitWithinMs], [threads])
+```
+
+==== Parameters
+
+* `url`: URL to Solr Server.
+* `core`: Solr Core (Default: default)
+* `batchSize`: Number of documents per commit (Default: 1).
+* `commitWithinMs`:  Max time (in ms) before a commit will happen (Default: 500).
+* `threads`: Number of threads for concurrent batch processing (Default: 1).
+
+==== Example
+
+Minimal case:
+
+```
+... | to-solr("https://example.com/solr/", core="test");
+```
+
+```
+... | to-solr(url="https://example.com/solr/", core="test",
+              batchSize="2", commitWithinMs="1000", threads="2");
+```
