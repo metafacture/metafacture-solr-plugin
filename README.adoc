@@ -5,6 +5,8 @@ A plugin for link:https://github.com/metafacture/metafacture-core[metafacture] t
 
 == Build
 
+image::https://jitpack.io/v/eberhardtj/metafacture-solr-plugin.svg[link="https://jitpack.io/#eberhardtj/metafacture-solr-plugin"]
+
 ```
 gradlew test fatJar
 ```
