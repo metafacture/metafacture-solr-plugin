@@ -80,7 +80,8 @@ public class SolrCommitProcess implements CSProcess {
             if (response.getStatus() != 0) {
                 return false;
             }
-        } catch (IOException|SolrServerException e) {
+        } catch (Exception e) {
+            System.err.println("Could not commit batch, due to " + e.getMessage());
             return false;
         }
         return true;
