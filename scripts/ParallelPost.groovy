@@ -18,7 +18,7 @@
  */
 @GrabResolver(name='jitpack', root='https://jitpack.io')
 @Grab('org.metafacture:metafacture-xml:5.0.0')
-@Grab('com.github.eberhardtj:metafacture-solr-plugin:v0.1.1')
+@Grab('com.github.eberhardtj:metafacture-solr-plugin:v0.1.2')
 @Grab('org.slf4j:slf4j-api:1.7.25')
 @Grab('org.slf4j:slf4j-simple:1.7.25')
 import groovy.cli.picocli.CliBuilder
@@ -30,6 +30,8 @@ def summary = '\n' + 'Posts Apache Solr index updates (in XML) to a Solr Server.
         '\n' +
         '\n' +
         'Example: groovy ParallelPost.groovy -u "http://localhost:8983/solr/" -c "demo"' +
+        '\n' +
+        'Version: 0.1.2' +
         '\n'
 
 def cli = new CliBuilder(usage:'ParallelPost [-ibdth] -u URL -c CORE', header: '\nOptions:', footer: summary)
@@ -38,7 +40,7 @@ cli.with {
     u argName: 'url', longOpt: 'url', 'Solr Host URL', type: String.class, required: true
     c argName: 'core', longOpt: 'core', 'Core name', type: String.class, required: true
     b argName: 'num', longOpt: 'batch-size', 'Batch size', type: Integer.class, defaultValue: '10000'
-    d argName: 'num', longOpt: 'delay', 'Delay before a commit happens (in ms)', type: Integer.class, defaultValue: '60000'
+    d argName: 'num', longOpt: 'delay', 'Delay before a commit happens (in ms)', type: Integer.class, defaultValue: '-1'
     t argName: 'num', longOpt: 'threads', 'Number of concurrent threads', type: Integer.class, defaultValue: '1'
     h longOpt: 'help', 'Show usage information'
 }
