@@ -45,7 +45,7 @@ public class SolrWriter extends DefaultSolrDocumentReceiver {
     /** Number of document per commit */
     private int batchSize;
     /** Time range in which a commit will happen. */
-    private int commitWithMs;
+    private int commitWithinMs;
 
     /** Number of threads to run in parallel */
     int threads;
@@ -62,7 +62,7 @@ public class SolrWriter extends DefaultSolrDocumentReceiver {
         this.core = "default";
         this.threads = 1;
         this.batchSize = 1;
-        this.commitWithMs = 500;
+        this.commitWithinMs = 500;
         this.onStartup = true;
     }
 
@@ -74,8 +74,8 @@ public class SolrWriter extends DefaultSolrDocumentReceiver {
         this.batchSize = batchSize;
     }
 
-    public void setCommitWithMs(int commitWithMs) {
-        this.commitWithMs = commitWithMs;
+    public void setCommitWithinMs(int commitWithinMs) {
+        this.commitWithinMs = commitWithinMs;
     }
 
     public void setThreads(int threads) {
@@ -98,7 +98,7 @@ public class SolrWriter extends DefaultSolrDocumentReceiver {
             for (int i = 0; i < threads; i++) {
                 SolrCommitProcess process = new SolrCommitProcess(documentChannel.in(), client, core);
                 process.setBatchSize(batchSize);
-                process.setCommitWithinMs(commitWithMs);
+                process.setCommitWithinMs(commitWithinMs);
                 parallel.addProcess(process);
             }
 
