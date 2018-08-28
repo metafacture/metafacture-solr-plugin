@@ -85,8 +85,14 @@ public class SolrCommitProcess implements CSProcess {
             if (response.getStatus() != 0) {
                 return false;
             }
+        } catch (IOException e) {
+            System.err.println("Could not commit batch, due to communication error: " + e.getMessage());
+            return false;
+        } catch (SolrServerException e) {
+            System.err.println("Could not commit batch, due to server error: " + e.getMessage());
+            return false;
         } catch (Exception e) {
-            System.err.println("Could not commit batch, due to " + e.getMessage());
+            System.err.println("Could not commit batch, due to unknown error: " + e.getMessage());
             return false;
         }
         return true;
