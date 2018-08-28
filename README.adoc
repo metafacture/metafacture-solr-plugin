@@ -126,7 +126,7 @@ to-solr(url, [core], [batchSize], [commitWithinMs], [threads])
 * `url`: URL to Solr Server.
 * `core`: Solr Core (Default: default)
 * `batchSize`: Number of documents per commit (Default: 1).
-* `commitWithinMs`:  Max time (in ms) before a commit will happen (Default: -1, Disabled).
+* `commitWithinMs`:  Max time (in ms) before a commit will happen (Default: -1 (Disabled), See also: link:https://lucene.apache.org/solr/guide/7_4/updatehandlers-in-solrconfig.html#UpdateHandlersinSolrConfig-commitWithin[Solr Ref Guide - commitWithin]).
 * `threads`: Number of threads for concurrent batch processing (Default: 1).
 
 ==== Example
