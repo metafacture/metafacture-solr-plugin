@@ -42,7 +42,7 @@ public class SolrCommitProcess implements CSProcess {
         this.client = client;
         this.collection = collection;
         this.batchSize = 1;
-        this.commitWithinMs = 500;
+        this.commitWithinMs = -1;
     }
 
     public void setBatchSize(int batchSize) {
@@ -76,7 +76,12 @@ public class SolrCommitProcess implements CSProcess {
 
     private boolean commit(List<SolrInputDocument> documents) {
         try {
-            UpdateResponse response = client.add(collection, documents, commitWithinMs);
+            UpdateResponse response;
+            if (commitWithinMs > 0)
+                response = client.add(collection, documents, commitWithinMs);
+            else
+                response = client.add(collection, documents);
+
             if (response.getStatus() != 0) {
                 return false;
             }

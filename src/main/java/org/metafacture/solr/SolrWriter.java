@@ -62,7 +62,7 @@ public class SolrWriter extends DefaultSolrDocumentReceiver {
         this.core = "default";
         this.threads = 1;
         this.batchSize = 1;
-        this.commitWithinMs = 500;
+        this.commitWithinMs = -1;
         this.onStartup = true;
     }
 
