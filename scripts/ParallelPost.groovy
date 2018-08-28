@@ -70,7 +70,7 @@ inputStream.withReader(utf8, { reader ->
     SolrWriter writer = new SolrWriter(url)
     writer.setCore((String) options.c)
     writer.setBatchSize((Integer) options.b)
-    writer.setCommitWithMs((Integer) options.d)
+    writer.setCommitWithinMs((Integer) options.d)
     writer.setThreads((Integer) options.t)
 
     decoder.setReceiver(handler)
