@@ -86,7 +86,7 @@ inputStream.withReader(utf8, { reader ->
     writer.setBatchSize((Integer) options.b)
     writer.setCommitWithinMs((Integer) options.d)
     writer.setThreads((Integer) options.t)
-    writer.setMaxRetries((Integer) options.r)
+    writer.setMaxRetries(options.r ? options.r.toInteger() : 0)
     writer.setWaitMs((Integer) options.w)
 
     decoder.setReceiver(handler)
