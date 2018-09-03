@@ -31,7 +31,7 @@ def summary = '\n' + 'Posts Apache Solr index updates (in XML) to a Solr Server.
         '\n' +
         'Example: groovy ParallelPost.groovy -u "http://localhost:8983/solr/" -c "demo"' +
         '\n' +
-        'Version: 0.1.2' +
+        'Version: 0.2.0' +
         '\n'
 
 def cli = new CliBuilder(usage:'ParallelPost [-ibdthrw] -u URL -c CORE', header: '\nOptions:', footer: summary)
