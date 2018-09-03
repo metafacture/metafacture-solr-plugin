@@ -33,6 +33,8 @@ public class SolrCommitProcess implements CSProcess {
     private String collection;
     private int batchSize;
     private int commitWithinMs;
+    private int maxRetries;
+    private int waitMs;
 
     public SolrCommitProcess(ChannelInput<SolrInputDocument> in,
                              SolrClient client,
@@ -43,6 +45,16 @@ public class SolrCommitProcess implements CSProcess {
         this.collection = collection;
         this.batchSize = 1;
         this.commitWithinMs = -1;
+        this.maxRetries = 0;
+        this.waitMs = 10_000;
+    }
+
+    public void setMaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
+    }
+
+    public void setWaitMs(int waitMs) {
+        this.waitMs = waitMs;
     }
 
     public void setBatchSize(int batchSize) {
@@ -63,13 +75,46 @@ public class SolrCommitProcess implements CSProcess {
                 document = receive();
                 batch.add(document);
             } catch (PoisonException e) {
-                if (!batch.isEmpty()) commit(batch);
+                if (!batch.isEmpty()) {
+                    boolean isSuccessful = commit(batch);
+                    if (!isSuccessful) {
+                        retryCommit(batch, maxRetries, waitMs);
+                    }
+                }
                 break;
             }
 
             if (batch.size() == batchSize) {
-                commit(batch);
+                boolean isSuccessful = commit(batch);
+
+                if (!isSuccessful) {
+                    retryCommit(batch, maxRetries, waitMs);
+                }
+
                 batch = new ArrayList<>(batchSize);
+            }
+        }
+    }
+
+    private void retryCommit(List<SolrInputDocument> documents, int retries, int waitMs) {
+        int retryLimit = retries;
+        while (true) {
+            if (retryLimit == 0) {
+                break;
+            }
+
+            try {
+                Thread.sleep(waitMs);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            boolean retrySuccessful = commit(documents);
+
+            if (retrySuccessful) {
+                break;
+            } else {
+                retryLimit -= 1;
             }
         }
     }
@@ -77,7 +122,7 @@ public class SolrCommitProcess implements CSProcess {
     private boolean commit(List<SolrInputDocument> documents) {
         try {
             UpdateResponse response;
-            if (commitWithinMs > 0)
+            if (commitWithinMs >= 0)
                 response = client.add(collection, documents, commitWithinMs);
             else
                 response = client.add(collection, documents);

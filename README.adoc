@@ -118,7 +118,7 @@ A sink that commits Solr Input Documents to a Apache Solr instance.
 ==== Syntax
 
 ```
-to-solr(url, [core], [batchSize], [commitWithinMs], [threads])
+to-solr(url, [core], [batchSize], [commitWithinMs], [threads], [maxRetries], [waitMs])
 ```
 
 ==== Parameters
@@ -128,6 +128,8 @@ to-solr(url, [core], [batchSize], [commitWithinMs], [threads])
 * `batchSize`: Number of documents per commit (Default: 1).
 * `commitWithinMs`:  Max time (in ms) before a commit will happen (Default: -1 (Disabled), See also: link:https://lucene.apache.org/solr/guide/7_4/updatehandlers-in-solrconfig.html#UpdateHandlersinSolrConfig-commitWithin[Solr Ref Guide - commitWithin]).
 * `threads`: Number of threads for concurrent batch processing (Default: 1).
+* `maxRetries`: Number of max retries for non-successful commits (Default: 0).
+* `waitMs`: Delay (in ms) before a retry will be triggered (Default: 10000).
 
 ==== Example
 

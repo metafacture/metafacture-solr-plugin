@@ -34,7 +34,7 @@ def summary = '\n' + 'Posts Apache Solr index updates (in XML) to a Solr Server.
         'Version: 0.1.2' +
         '\n'
 
-def cli = new CliBuilder(usage:'ParallelPost [-ibdth] -u URL -c CORE', header: '\nOptions:', footer: summary)
+def cli = new CliBuilder(usage:'ParallelPost [-ibdthrw] -u URL -c CORE', header: '\nOptions:', footer: summary)
 cli.with {
     i argName: 'file', longOpt: 'xml-input', 'Input (Default: stdin)', type: String.class, defaultValue: '-'
     u argName: 'url', longOpt: 'url', 'Solr Host URL', type: String.class, required: true
@@ -42,6 +42,8 @@ cli.with {
     b argName: 'num', longOpt: 'batch-size', 'Batch size', type: Integer.class, defaultValue: '10000'
     d argName: 'num', longOpt: 'delay', 'Delay before a commit happens (in ms)', type: Integer.class, defaultValue: '-1'
     t argName: 'num', longOpt: 'threads', 'Number of concurrent threads', type: Integer.class, defaultValue: '1'
+    r argName: 'num', longOpt: 'retries', 'Number of retries for non-successful commits', type: Integer.class, defaultValue: '0'
+    w argName: 'num', longOpt: 'wait', 'Delay (in ms) before a retry will be triggered', type: Integer.class, defaultValue: '10000'
     h longOpt: 'help', 'Show usage information'
 }
 
@@ -72,6 +74,8 @@ inputStream.withReader(utf8, { reader ->
     writer.setBatchSize((Integer) options.b)
     writer.setCommitWithinMs((Integer) options.d)
     writer.setThreads((Integer) options.t)
+    writer.setMaxRetries((Integer) options.r)
+    writer.setWaitMs((Integer) options.w)
 
     decoder.setReceiver(handler)
     handler.setReceiver(writer)
