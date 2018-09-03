@@ -15,6 +15,18 @@
  * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * Groovy: Version 2.5.0
+ *
+ * Hint:
+ * FEATURE_SECURE_PROCESSING
+ *
+ * SECURE_PROCESSING may cause an exception, due to the accumulated size of entities.
+ *
+ * Use the following JAVA_OPTS to set the limit to unlimited.
+ *
+ * JAVA_OPTS="-DentityExpansionLimit=0 -DtotalEntitySizeLimit=0 -Djdk.xml.totalEntitySizeLimit=0"
+ *
+ * See also: https://github.com/elastic/stream2es/issues/65
+ *
  */
 @GrabResolver(name='jitpack', root='https://jitpack.io')
 @Grab('org.metafacture:metafacture-xml:5.0.0')
