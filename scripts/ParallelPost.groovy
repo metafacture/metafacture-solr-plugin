@@ -30,7 +30,7 @@
  */
 @GrabResolver(name='jitpack', root='https://jitpack.io')
 @Grab('org.metafacture:metafacture-xml:5.0.0')
-@Grab('com.github.eberhardtj:metafacture-solr-plugin:v0.2.0')
+@Grab('com.github.eberhardtj:metafacture-solr-plugin:v0.2.1')
 @Grab('org.slf4j:slf4j-api:1.7.25')
 @Grab('org.slf4j:slf4j-simple:1.7.25')
 import groovy.cli.picocli.CliBuilder
@@ -43,7 +43,7 @@ def summary = '\n' + 'Posts Apache Solr index updates (in XML) to a Solr Server.
         '\n' +
         'Example: groovy ParallelPost.groovy -u "http://localhost:8983/solr/" -c "demo"' +
         '\n' +
-        'Version: 0.2.0' +
+        'Version: 0.2.1' +
         '\n'
 
 def cli = new CliBuilder(usage:'ParallelPost [-ibdthrw] -u URL -c CORE', header: '\nOptions:', footer: summary)
