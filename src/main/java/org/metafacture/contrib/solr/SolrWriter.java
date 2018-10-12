@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.metafacture.solr;
+package org.metafacture.contrib.solr;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.BinaryRequestWriter;
@@ -24,12 +24,12 @@ import org.jcsp.lang.ChannelOutput;
 import org.jcsp.lang.One2AnyChannel;
 import org.jcsp.lang.Parallel;
 import org.jcsp.util.Buffer;
+import org.metafacture.contrib.framework.SolrDocumentReceiver;
+import org.metafacture.contrib.framework.helpers.DefaultSolrDocumentReceiver;
 import org.metafacture.framework.FluxCommand;
-import org.metafacture.framework.SolrDocumentReceiver;
 import org.metafacture.framework.annotations.Description;
 import org.metafacture.framework.annotations.In;
 import org.metafacture.framework.annotations.Out;
-import org.metafacture.framework.helpers.DefaultSolrDocumentReceiver;
 
 @Description("Adds documents to a Solr core.")
 @In(SolrDocumentReceiver.class)

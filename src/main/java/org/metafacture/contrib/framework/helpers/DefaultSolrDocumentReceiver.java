@@ -13,8 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.metafacture.framework;
+package org.metafacture.contrib.framework.helpers;
 
-public interface SolrDocumentPipe<R extends Receiver> extends SolrDocumentReceiver, Sender<R> {
-    // Just a combination of sender and receiver
+import org.apache.solr.common.SolrInputDocument;
+import org.metafacture.framework.ObjectReceiver;
+import org.metafacture.framework.helpers.DefaultLifeCycle;
+
+public class DefaultSolrDocumentReceiver extends DefaultLifeCycle implements ObjectReceiver<SolrInputDocument> {
+
+    @Override
+    public void process(final SolrInputDocument obj) {
+        // Default implementation does nothing
+    }
 }
+

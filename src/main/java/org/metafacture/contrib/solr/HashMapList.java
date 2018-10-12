@@ -1,4 +1,4 @@
-package org.metafacture.solr;
+package org.metafacture.contrib.solr;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.metafacture.solr;
+package org.metafacture.contrib.solr;
 
 import org.apache.solr.common.SolrInputDocument;
+import org.metafacture.contrib.framework.SolrDocumentReceiver;
 import org.metafacture.framework.FluxCommand;
 import org.metafacture.framework.ObjectReceiver;
-import org.metafacture.framework.SolrDocumentReceiver;
 import org.metafacture.framework.StreamReceiver;
 import org.metafacture.framework.annotations.Description;
 import org.metafacture.framework.annotations.In;
