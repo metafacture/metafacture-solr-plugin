@@ -1,4 +1,4 @@
-package org.metafacture.solr;
+package org.metafacture.contrib.solr;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package org.metafacture.solr;
+package org.metafacture.contrib.solr;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.metafacture.solr;
+package org.metafacture.contrib.solr;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;

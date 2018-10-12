@@ -1,19 +1,15 @@
-package org.metafacture.solr;
+package org.metafacture.contrib.solr;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.Before;
 import org.junit.Test;
-import org.xml.sax.Attributes;
 import org.xml.sax.helpers.AttributesImpl;
-
-import javax.xml.namespace.QName;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.function.Predicate.isEqual;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.*;
