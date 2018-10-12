@@ -34,8 +34,8 @@
 @Grab('org.slf4j:slf4j-api:1.7.25')
 @Grab('org.slf4j:slf4j-simple:1.7.25')
 import groovy.cli.picocli.CliBuilder
-import org.metafacture.solr.SolrWriter
-import org.metafacture.solr.SolrXmlHandler
+import org.metafacture.contrib.solr.SolrWriter
+import org.metafacture.contrib.solr.SolrXmlHandler
 import org.metafacture.xml.XmlDecoder
 
 def summary = '\n' + 'Posts Apache Solr index updates (in XML) to a Solr Server.' +
