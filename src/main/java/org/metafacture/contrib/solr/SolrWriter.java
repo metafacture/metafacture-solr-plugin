@@ -19,11 +19,10 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.BinaryRequestWriter;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
+import org.jcsp.lang.Barrier;
 import org.jcsp.lang.Channel;
-import org.jcsp.lang.ChannelOutput;
 import org.jcsp.lang.One2AnyChannel;
 import org.jcsp.lang.Parallel;
-import org.jcsp.util.Buffer;
 import org.metafacture.contrib.framework.SolrDocumentReceiver;
 import org.metafacture.contrib.framework.helpers.DefaultSolrDocumentReceiver;
 import org.metafacture.framework.FluxCommand;
@@ -51,11 +50,11 @@ public class SolrWriter extends DefaultSolrDocumentReceiver {
     private int waitMs;
 
     /** Number of threads to run in parallel */
-    int threads;
-    One2AnyChannel<SolrInputDocument> documentChannel;
-    ChannelOutput<SolrInputDocument> documentChannelOutput;
+    private int threads;
+    private Barrier barrier;
+    private One2AnyChannel<SolrInputDocument> documentChannel;
 
-    private Thread workerThread;
+    private Thread runner;
 
     /** Flag for a hook that acts before the first processing occurs. */
     private boolean onStartup;
@@ -109,7 +108,7 @@ public class SolrWriter extends DefaultSolrDocumentReceiver {
 
             Parallel parallel = new Parallel();
             for (int i = 0; i < threads; i++) {
-                SolrCommitProcess process = new SolrCommitProcess(documentChannel.in(), client, core);
+                SolrCommitProcess process = new SolrCommitProcess(documentChannel.in(), barrier, client, core);
                 process.setBatchSize(batchSize);
                 process.setCommitWithinMs(commitWithinMs);
                 process.setMaxRetries(maxRetries);
@@ -143,7 +142,7 @@ public class SolrWriter extends DefaultSolrDocumentReceiver {
     public void closeStream() {
         documentChannelOutput.poison(threads);
         try {
-            workerThread.join();
+            runner.join();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
