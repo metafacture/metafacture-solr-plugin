@@ -36,10 +36,10 @@ import java.util.Map;
 @FluxCommand("build-solr-doc")
 public class SolrDocumentBuilder extends DefaultStreamPipe<ObjectReceiver<SolrInputDocument>> {
 
-    SolrInputDocument document;
-    String updateMethod;
-    String updateFieldName;
-    List<String> updateFieldValues;
+    private SolrInputDocument document;
+    private String updateMethod;
+    private String updateFieldName;
+    private List<String> updateFieldValues;
 
     public SolrDocumentBuilder() {
         updateMethod = "";
