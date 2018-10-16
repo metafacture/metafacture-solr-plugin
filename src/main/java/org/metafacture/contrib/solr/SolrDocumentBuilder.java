@@ -86,6 +86,7 @@ public class SolrDocumentBuilder extends DefaultStreamPipe<ObjectReceiver<SolrIn
             document.addField(updateFieldName, atomicUpdateAction);
         }
         updateMethod = "";
+        updateFieldValues = new ArrayList<>();
     }
 
     @Override

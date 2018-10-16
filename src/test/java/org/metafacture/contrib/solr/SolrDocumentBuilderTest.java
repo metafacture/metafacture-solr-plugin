@@ -104,4 +104,47 @@ public class SolrDocumentBuilderTest {
         assertThat(valueMap.keySet(), hasItems("add"));
         assertThat(valueMap.get("add"), hasItems("alice", "bob"));
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void shouldContainTwoAtomicUpdates() {
+        builder.startRecord("id1");
+        builder.startEntity("set");
+        builder.literal("title", "New Title");
+        builder.endEntity();
+        builder.startEntity("add");
+        builder.literal("name", "alice");
+        builder.literal("name", "bob");
+        builder.endEntity();
+        builder.endRecord();
+        builder.closeStream();
+
+        SolrInputDocument document = buffer.getObject();
+
+        assertThat(document.getFieldNames(), hasItem("name"));
+
+        SolrInputField field = document.getField("name");
+        assertThat(field.getValueCount(), is(equalTo(1)));
+
+        Object value = field.getFirstValue();
+        assertThat(value, is(instanceOf(Map.class)));
+
+        Map<String,List<String>> valueMap = (Map<String,List<String>>)value;
+        assertThat(valueMap.keySet(), hasItem("add"));
+        assertThat(valueMap.get("add"), hasItems("alice", "bob"));
+
+
+
+        assertThat(document.getFieldNames(), hasItem("title"));
+
+        SolrInputField field2 = document.getField("title");
+        assertThat(field2.getValueCount(), is(equalTo(1)));
+
+        Object value2 = field2.getFirstValue();
+        assertThat(value, is(instanceOf(Map.class)));
+
+        Map<String,List<String>> valueMap2 = (Map<String,List<String>>)value2;
+        assertThat(valueMap2.keySet(), hasItem("set"));
+        assertThat(valueMap2.get("set"), hasItem("New Title"));
+    }
 }
