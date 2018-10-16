@@ -147,4 +147,24 @@ public class SolrDocumentBuilderTest {
         assertThat(valueMap2.keySet(), hasItem("set"));
         assertThat(valueMap2.get("set"), hasItem("New Title"));
     }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void shouldContainTwoAtomicUpdatesForOneField() {
+        builder.startRecord("id1");
+        builder.startEntity("add");
+        builder.literal("name", "alice");
+        builder.literal("name", "bob");
+        builder.endEntity();
+        builder.startEntity("remove");
+        builder.literal("name", "claire");
+        builder.endEntity();
+        builder.endRecord();
+        builder.closeStream();
+
+        SolrInputDocument document = buffer.getObject();
+
+        assertThat(document.toString(),
+                is(equalTo("SolrInputDocument(fields: [name={add=[alice, bob], remove=[claire]}])")));
+    }
 }

@@ -16,6 +16,7 @@
 package org.metafacture.contrib.solr;
 
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.SolrInputField;
 import org.metafacture.contrib.framework.SolrDocumentReceiver;
 import org.metafacture.framework.FluxCommand;
 import org.metafacture.framework.MetafactureException;
@@ -79,11 +80,24 @@ public class SolrDocumentBuilder extends DefaultStreamPipe<ObjectReceiver<SolrIn
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void endEntity() {
         if (!updateMethod.isEmpty()) {
-            Map<String,Object> atomicUpdateAction = new HashMap<>();
-            atomicUpdateAction.put(updateMethod, new ArrayList<>(updateFieldValues));
-            document.addField(updateFieldName, atomicUpdateAction);
+
+            SolrInputField field = document.getField(updateFieldName);
+            if (field == null) {
+                // New field
+                Map<String,Object> atomicUpdateAction = new HashMap<>();
+                atomicUpdateAction.put(updateMethod, new ArrayList<>(updateFieldValues));
+                document.addField(updateFieldName, atomicUpdateAction);
+            } else {
+                // Modify field
+                Object o = field.getValue();
+                if (o instanceof Map) {
+                    Map<String,Object> atomicUpdateAction = (Map<String,Object>) o;
+                    atomicUpdateAction.put(updateMethod, new ArrayList<>(updateFieldValues));
+                }
+            }
         }
         updateMethod = "";
         updateFieldValues = new ArrayList<>();
