@@ -17,7 +17,6 @@ package org.metafacture.contrib.solr;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.jcsp.lang.*;
-import org.jcsp.util.Buffer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,17 +32,18 @@ public class SolrCommitProcessTest {
 
     private FakeSolrClient client;
     private One2AnyChannel<SolrInputDocument> documentChannel;
+    private int noPoisonImmunity = 0;
 
     @Before
     public void setUp() throws Exception {
         client = new FakeSolrClient();
-        documentChannel = Channel.one2any(new Buffer<>(1), 1);
+        documentChannel = Channel.one2any(noPoisonImmunity);
     }
 
     @Test
     public void shouldTerminate() {
         CSProcess send = new SendProcess(documentChannel.out(), new ArrayList<>());
-        CSProcess commit = new SolrCommitProcess(documentChannel.in(), client, "test");
+        CSProcess commit = new SolrCommitProcess(documentChannel.in(), new Barrier(1), client, "test");
         Parallel parallel = new Parallel();
         parallel.addProcess(send);
         parallel.addProcess(commit);
@@ -64,7 +64,7 @@ public class SolrCommitProcessTest {
         List<SolrInputDocument> docs = Stream.of(doc1, doc2, doc3).collect(Collectors.toList());
 
         CSProcess send = new SendProcess(documentChannel.out(), docs);
-        SolrCommitProcess commit = new SolrCommitProcess(documentChannel.in(), client, "test");
+        SolrCommitProcess commit = new SolrCommitProcess(documentChannel.in(), new Barrier(1), client, "test");
         commit.setBatchSize(2);
 
         Parallel parallel = new Parallel();
@@ -80,18 +80,18 @@ public class SolrCommitProcessTest {
     /** A simple producer process that puts elements into a channel. */
     class SendProcess implements CSProcess {
 
-        private ChannelOutput<SolrInputDocument> chan;
+        private ChannelOutput<SolrInputDocument> channel;
         private List<SolrInputDocument> documents;
 
-        public SendProcess(ChannelOutput<SolrInputDocument> chan, List<SolrInputDocument> documents) {
-            this.chan = chan;
+        public SendProcess(ChannelOutput<SolrInputDocument> channel, List<SolrInputDocument> documents) {
+            this.channel = channel;
             this.documents = documents;
         }
 
         @Override
         public void run() {
-            documents.forEach(chan::write);
-            chan.poison(1);
+            documents.forEach(channel::write);
+            channel.poison(1);
         }
     }
 }

@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
+import org.jcsp.lang.Barrier;
 import org.jcsp.lang.CSProcess;
 import org.jcsp.lang.ChannelInput;
 import org.jcsp.lang.PoisonException;
@@ -28,7 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SolrCommitProcess implements CSProcess {
-    private ChannelInput<SolrInputDocument> in;
+    private ChannelInput<SolrInputDocument> channelInput;
+    private Barrier barrier;
     private SolrClient client;
     private String collection;
     private int batchSize;
@@ -36,11 +38,13 @@ public class SolrCommitProcess implements CSProcess {
     private int maxRetries;
     private int waitMs;
 
-    public SolrCommitProcess(ChannelInput<SolrInputDocument> in,
+    public SolrCommitProcess(ChannelInput<SolrInputDocument> channelInput,
+                             Barrier barrier,
                              SolrClient client,
                              String collection)
     {
-        this.in = in;
+        this.channelInput = channelInput;
+        this.barrier = barrier;
         this.client = client;
         this.collection = collection;
         this.batchSize = 1;
@@ -81,6 +85,7 @@ public class SolrCommitProcess implements CSProcess {
                         retryCommit(batch, maxRetries, waitMs);
                     }
                 }
+                barrier.sync();
                 break;
             }
 
@@ -144,6 +149,6 @@ public class SolrCommitProcess implements CSProcess {
     }
 
     private SolrInputDocument receive() {
-        return in.read();
+        return channelInput.read();
     }
 }
