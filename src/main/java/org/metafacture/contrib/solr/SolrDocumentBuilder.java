@@ -50,7 +50,7 @@ public class SolrDocumentBuilder extends DefaultStreamPipe<ObjectReceiver<SolrIn
         updateMethod = "";
         updateFieldValues = new ArrayList<>();
 
-        // See: https://lucene.apache.org/solr/guide/7_5/updating-parts-of-documents.html
+        // See also: https://lucene.apache.org/solr/guide/7_5/updating-parts-of-documents.html
         validUpdateMethods = new HashSet<>();
         validUpdateMethods.add("add");
         validUpdateMethods.add("add-distinct");
@@ -85,17 +85,21 @@ public class SolrDocumentBuilder extends DefaultStreamPipe<ObjectReceiver<SolrIn
         if (!updateMethod.isEmpty()) {
 
             SolrInputField field = document.getField(updateFieldName);
+
+            boolean isSingleValue = updateFieldValues.size() == 1;
+            Object updateValue = isSingleValue ? updateFieldValues.get(0) : new ArrayList<>(updateFieldValues);
+
+            // New field
             if (field == null) {
-                // New field
-                Map<String,Object> atomicUpdateAction = new HashMap<>();
-                atomicUpdateAction.put(updateMethod, new ArrayList<>(updateFieldValues));
-                document.addField(updateFieldName, atomicUpdateAction);
+                Map<String,Object> updates = new HashMap<>();
+                updates.put(updateMethod, updateValue);
+                document.addField(updateFieldName, updates);
+            // Modify field
             } else {
-                // Modify field
-                Object o = field.getValue();
-                if (o instanceof Map) {
-                    Map<String,Object> atomicUpdateAction = (Map<String,Object>) o;
-                    atomicUpdateAction.put(updateMethod, new ArrayList<>(updateFieldValues));
+                Object obj = field.getValue();
+                if (obj instanceof Map) {
+                    Map<String,Object> updates = (Map<String,Object>) obj;
+                    updates.put(updateMethod, updateValue);
                 }
             }
         }

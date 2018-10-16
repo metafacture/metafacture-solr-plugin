@@ -121,31 +121,8 @@ public class SolrDocumentBuilderTest {
 
         SolrInputDocument document = buffer.getObject();
 
-        assertThat(document.getFieldNames(), hasItem("name"));
-
-        SolrInputField field = document.getField("name");
-        assertThat(field.getValueCount(), is(equalTo(1)));
-
-        Object value = field.getFirstValue();
-        assertThat(value, is(instanceOf(Map.class)));
-
-        Map<String,List<String>> valueMap = (Map<String,List<String>>)value;
-        assertThat(valueMap.keySet(), hasItem("add"));
-        assertThat(valueMap.get("add"), hasItems("alice", "bob"));
-
-
-
-        assertThat(document.getFieldNames(), hasItem("title"));
-
-        SolrInputField field2 = document.getField("title");
-        assertThat(field2.getValueCount(), is(equalTo(1)));
-
-        Object value2 = field2.getFirstValue();
-        assertThat(value, is(instanceOf(Map.class)));
-
-        Map<String,List<String>> valueMap2 = (Map<String,List<String>>)value2;
-        assertThat(valueMap2.keySet(), hasItem("set"));
-        assertThat(valueMap2.get("set"), hasItem("New Title"));
+        String expectedDocument = "SolrInputDocument(fields: [title={set=New Title}, name={add=[alice, bob]}])";
+        assertThat(document.toString(), is(equalTo(expectedDocument)));
     }
 
     @Test
@@ -163,8 +140,24 @@ public class SolrDocumentBuilderTest {
         builder.closeStream();
 
         SolrInputDocument document = buffer.getObject();
+        String expectedDocument = "SolrInputDocument(fields: [name={add=[alice, bob], remove=claire}])";
 
-        assertThat(document.toString(),
-                is(equalTo("SolrInputDocument(fields: [name={add=[alice, bob], remove=[claire]}])")));
+        assertThat(document.toString(), is(equalTo(expectedDocument)));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void shouldNotPutSingleUpdateValueInList() {
+        builder.startRecord("id1");
+        builder.startEntity("add");
+        builder.literal("name", "alice");
+        builder.endEntity();
+        builder.endRecord();
+        builder.closeStream();
+
+        SolrInputDocument document = buffer.getObject();
+        String expectedDocument = "SolrInputDocument(fields: [name={add=alice}])";
+
+        assertThat(document.toString(), is(equalTo(expectedDocument)));
     }
 }

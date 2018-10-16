@@ -27,6 +27,7 @@ import org.metafacture.framework.annotations.Out;
 import org.metafacture.framework.helpers.DefaultXmlPipe;
 import org.xml.sax.Attributes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class SolrXmlHandler extends DefaultXmlPipe<ObjectReceiver<SolrInputDocum
      */
     private String fieldModifier;
 
-    private Map<String, HashMapList<String,String>> fieldUpdates;
+    private Map<String, Map<String,Object>> fieldUpdatesMap;
 
     public SolrXmlHandler() {
         this.isModified = false;
@@ -80,7 +81,7 @@ public class SolrXmlHandler extends DefaultXmlPipe<ObjectReceiver<SolrInputDocum
         switch (localName) {
             case DOC:
                 solrDocument = new SolrInputDocument();
-                fieldUpdates = new HashMap<>();
+                fieldUpdatesMap = new HashMap<>();
                 documentDepth++;
                 if (documentDepth == 2) {
                     throw new MetafactureException("Nested documents are not supported!");
@@ -89,7 +90,9 @@ public class SolrXmlHandler extends DefaultXmlPipe<ObjectReceiver<SolrInputDocum
             case FIELD:
                 fieldName = attributes.getValue("name");
                 isModified = attributes.getValue("update") != null;
-                if (isModified) fieldModifier = attributes.getValue("update");
+                if (isModified) {
+                    fieldModifier = attributes.getValue("update");
+                }
                 break;
             default:
                 break;
@@ -97,36 +100,62 @@ public class SolrXmlHandler extends DefaultXmlPipe<ObjectReceiver<SolrInputDocum
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void endElement(final String uri, final String localName, final String qName) {
         currentElement = localName;
 
-        if (currentElement.equals(DOC)) {
-            if (documentDepth == 1) {
-                if (!fieldUpdates.isEmpty()) {
-                    for (Map.Entry<String, HashMapList<String,String>> entry : fieldUpdates.entrySet()) {
+        if (currentElement.equals(DOC))
+        {
+            if (documentDepth == 1)
+            {
+                if (!fieldUpdatesMap.isEmpty())
+                {
+                    for (Map.Entry<String, Map<String,Object>> entry : fieldUpdatesMap.entrySet())
+                    {
                        String fieldName = entry.getKey();
-                       Map<String,List<String>> atomicUpdates = entry.getValue().asMap();
-                       solrDocument.addField(fieldName, atomicUpdates);
+                       Map<String,Object> fieldUpdates = entry.getValue();
+                       solrDocument.addField(fieldName, fieldUpdates);
                     }
                 }
                 getReceiver().process(solrDocument);
                 reset();
-            } else {
+            }
+            else
+            {
                 throw new MetafactureException("Nested documents are not supported!");
             }
             documentDepth--;
-        } else if (currentElement.equals(FIELD)) {
+        }
+        else if (currentElement.equals(FIELD))
+        {
             String fieldValue = characters.toString().trim();
-            if (!isModified) {
+            if (!isModified)
+            {
                 solrDocument.addField(fieldName, fieldValue);
-            } else {
-                if (!fieldUpdates.containsKey(fieldName)) {
-                    HashMapList<String,String> updates = new HashMapList<>();
-                    updates.add(fieldModifier, fieldValue);
-                    fieldUpdates.put(fieldName, updates);
-                } else {
-                    HashMapList<String,String> updates = fieldUpdates.get(fieldName);
-                    updates.add(fieldModifier, fieldValue);
+            }
+            else
+            {
+                Map<String,Object> fieldUpdates = fieldUpdatesMap.getOrDefault(fieldName, new HashMap<>());
+                if (fieldUpdates.isEmpty() || !fieldUpdates.containsKey(fieldModifier))
+                {
+                    fieldUpdates.put(fieldModifier, fieldValue);
+                    fieldUpdatesMap.put(fieldName, fieldUpdates);
+                }
+                else
+                {
+                    Object existingValue = fieldUpdates.get(fieldModifier);
+                    if (existingValue instanceof List)
+                    {
+                        List<String> existingValues = (List<String>) existingValue;
+                        existingValues.add(fieldValue);
+                    }
+                    else
+                    {
+                        List list = new ArrayList();
+                        list.add(existingValue);
+                        list.add(fieldValue);
+                        fieldUpdates.put(fieldModifier, list);
+                    }
                 }
             }
         }
@@ -140,7 +169,7 @@ public class SolrXmlHandler extends DefaultXmlPipe<ObjectReceiver<SolrInputDocum
 
     private void reset() {
         solrDocument = new SolrInputDocument();
-        fieldUpdates.clear();
+        fieldUpdatesMap.clear();
         fieldModifier = NO_MODIFICATION;
     }
 }

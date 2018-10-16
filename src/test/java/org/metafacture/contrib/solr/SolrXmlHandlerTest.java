@@ -7,11 +7,11 @@ import org.xml.sax.helpers.AttributesImpl;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class SolrXmlHandlerTest {
@@ -61,6 +61,7 @@ public class SolrXmlHandlerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void singleUpdateDocument() {
         startRoot(handler);
         startDocument(handler);
@@ -75,9 +76,8 @@ public class SolrXmlHandlerTest {
         assertThat(document.getFieldNames(), hasItems("id", "name"));
         assertThat(document.getFieldValue("id"), equalTo("1"));
 
-        HashMap<String, List<String>> atomicUpdates = new HashMap<>();
-        atomicUpdates.put("add", Stream.of("alice").collect(Collectors.toList()));
-        assertThat(document.getFieldValue("name"), equalTo(atomicUpdates));
+        Map<String,Object> map = (Map<String,Object>) document.getFieldValue("name");
+        assertThat(map, hasEntry("add", "alice"));
     }
 
     @Test
@@ -101,9 +101,28 @@ public class SolrXmlHandlerTest {
         atomicUpdatesNames.put("add", Stream.of("alice", "bob").collect(Collectors.toList()));
         assertThat(document.getFieldValue("name"), equalTo(atomicUpdatesNames));
 
-        HashMap<String, List<String>> atomicUpdatesAge = new HashMap<>();
-        atomicUpdatesAge.put("set", Stream.of("20").collect(Collectors.toList()));
+        HashMap<String, String> atomicUpdatesAge = new HashMap<>();
+        atomicUpdatesAge.put("set", "20");
         assertThat(document.getFieldValue("age"), equalTo(atomicUpdatesAge));
+    }
+
+    @Test
+    public void applyTwoModifiersOnOneField() {
+        startRoot(handler);
+        startDocument(handler);
+        addField(handler, "id", "1");
+        addField(handler, "name", "alice", "add");
+        addField(handler, "name", "bob", "add");
+        addField(handler, "name", "claire", "remove");
+        endDocument(handler);
+        endRoot(handler);
+
+        buffer.closeStream();
+        SolrInputDocument document = buffer.getObject();
+
+        String documentString = document.toString();
+        String expectedDocumentString = "SolrInputDocument(fields: [id=1, name={add=[alice, bob], remove=claire}])";
+        assertThat(documentString, is(equalTo(expectedDocumentString)));
     }
 
     private void startRoot(SolrXmlHandler handler) {
