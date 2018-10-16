@@ -18,6 +18,7 @@ package org.metafacture.contrib.solr;
 import org.apache.solr.common.SolrInputDocument;
 import org.metafacture.contrib.framework.SolrDocumentReceiver;
 import org.metafacture.framework.FluxCommand;
+import org.metafacture.framework.MetafactureException;
 import org.metafacture.framework.ObjectReceiver;
 import org.metafacture.framework.StreamReceiver;
 import org.metafacture.framework.annotations.Description;
@@ -27,8 +28,10 @@ import org.metafacture.framework.helpers.DefaultStreamPipe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Description("Builds a Solr Document from metafacture stream events.")
 @In(StreamReceiver.class)
@@ -40,10 +43,20 @@ public class SolrDocumentBuilder extends DefaultStreamPipe<ObjectReceiver<SolrIn
     private String updateMethod;
     private String updateFieldName;
     private List<String> updateFieldValues;
+    private Set<String> validUpdateMethods;
 
     public SolrDocumentBuilder() {
         updateMethod = "";
         updateFieldValues = new ArrayList<>();
+
+        // See: https://lucene.apache.org/solr/guide/7_5/updating-parts-of-documents.html
+        validUpdateMethods = new HashSet<>();
+        validUpdateMethods.add("add");
+        validUpdateMethods.add("add-distinct");
+        validUpdateMethods.add("inc");
+        validUpdateMethods.add("remove");
+        validUpdateMethods.add("removeregexp");
+        validUpdateMethods.add("set");
     }
 
     @Override
@@ -58,6 +71,10 @@ public class SolrDocumentBuilder extends DefaultStreamPipe<ObjectReceiver<SolrIn
 
     @Override
     public void startEntity(String name) {
+        if (!validUpdateMethods.contains(name)) {
+            throw new MetafactureException("Invalid update method " + "'" + name  + "'" + "." +
+                    "Use: add, add-distinct, inc, remove, removeregexp or set.");
+        }
         updateMethod = name;
     }
 
