@@ -1,4 +1,3 @@
-#!/usr/bin/env groovy
 /*
  * Copyright (c) 2018 Deutsche Nationalbibliothek
  *
@@ -39,23 +38,28 @@ import org.metafacture.contrib.solr.SolrXmlHandler
 import org.metafacture.xml.XmlDecoder
 
 def summary = '\n' + 'Posts Apache Solr index updates (in XML) to a Solr Server.' +
-        '\n' +
-        '\n' +
-        'Example: groovy ParallelPost.groovy -u "http://localhost:8983/solr/" -c "demo"' +
-        '\n' +
-        'Version: 0.2.1' +
+        '\n\n' + 'Example: ' + '\n' +
+        "groovy ${this.class.getSimpleName()}.groovy -u \"http://localhost:8983/solr/\" -c \"test\" -d 15000" +
+        '\n\n' + 'Hint: ' + '\n' + 
+        'SECURE_PROCESSING may cause an exception, due to the accumulated size of entities.' +
+        '\n\n' + 'Fix: ' + '\n' +
+        'JAVA_OPTS="-DentityExpansionLimit=0 -DtotalEntitySizeLimit=0 -Djdk.xml.totalEntitySizeLimit=0"' +
         '\n'
 
-def cli = new CliBuilder(usage:'ParallelPost [-ibdthrw] -u URL -c CORE', header: '\nOptions:', footer: summary)
+
+def usage = "${this.class.getSimpleName()}.groovy [-ibdthrw] -u URL -c CORE"
+
+def cli = new CliBuilder(usage: usage, header: '\nOptions:', footer: summary)
+cli.width = 120
 cli.with {
     i argName: 'file', longOpt: 'xml-input', 'Input (Default: stdin)', type: String.class, defaultValue: '-'
     u argName: 'url', longOpt: 'url', 'Solr Host URL', type: String.class, required: true
     c argName: 'core', longOpt: 'core', 'Core name', type: String.class, required: true
-    b argName: 'num', longOpt: 'batch-size', 'Batch size', type: Integer.class, defaultValue: '10000'
-    d argName: 'num', longOpt: 'delay', 'Delay before a commit happens (in ms)', type: Integer.class, defaultValue: '-1'
-    t argName: 'num', longOpt: 'threads', 'Number of concurrent threads', type: Integer.class, defaultValue: '1'
-    r argName: 'num', longOpt: 'retries', 'Number of retries for non-successful commits', type: Integer.class, defaultValue: '0'
-    w argName: 'num', longOpt: 'wait', 'Delay (in ms) before a retry will be triggered', type: Integer.class, defaultValue: '10000'
+    b argName: 'num', longOpt: 'batch-size', 'Batch size (Default: 10000).', type: Integer.class, defaultValue: '10000'
+    d argName: 'num', longOpt: 'delay', 'Delay before a commit happens (in ms) (Default: No delay).', type: Integer.class, defaultValue: '-1'
+    t argName: 'num', longOpt: 'threads', 'Number of concurrent threads (Default: 1).', type: Integer.class, defaultValue: '1'
+    r argName: 'num', longOpt: 'retries', 'Number of retries for non-successful commits (Default: 0).', type: Integer.class, defaultValue: '0'
+    w argName: 'num', longOpt: 'wait', 'Delay (in ms) before a retry will be triggered (Default: 10000).', type: Integer.class, defaultValue: '10000'
     h longOpt: 'help', 'Show usage information'
 }
 
