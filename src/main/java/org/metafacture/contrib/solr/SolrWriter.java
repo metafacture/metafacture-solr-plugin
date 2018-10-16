@@ -26,6 +26,7 @@ import org.jcsp.lang.Parallel;
 import org.metafacture.contrib.framework.SolrDocumentReceiver;
 import org.metafacture.contrib.framework.helpers.DefaultSolrDocumentReceiver;
 import org.metafacture.framework.FluxCommand;
+import org.metafacture.framework.MetafactureException;
 import org.metafacture.framework.annotations.Description;
 import org.metafacture.framework.annotations.In;
 import org.metafacture.framework.annotations.Out;
@@ -104,7 +105,10 @@ public class SolrWriter extends DefaultSolrDocumentReceiver {
             httpClient.setRequestWriter(new BinaryRequestWriter());
             client = httpClient;
 
-            documentChannel = Channel.one2any(new Buffer<>(2 * threads), threads);
+            int noPoisonImmunity = 0;
+            documentChannel = Channel.one2any(noPoisonImmunity);
+
+            barrier = new Barrier(threads);
 
             Parallel parallel = new Parallel();
             for (int i = 0; i < threads; i++) {
@@ -116,35 +120,34 @@ public class SolrWriter extends DefaultSolrDocumentReceiver {
                 parallel.addProcess(process);
             }
 
-            documentChannelOutput = documentChannel.out();
-
             onStartup = false;
 
-            workerThread = new Thread(new Runnable() {
+            runner = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     parallel.run();
                 }
             });
-            workerThread.start();
+            runner.start();
         }
 
-        documentChannelOutput.write(document);
+        documentChannel.out().write(document);
     }
 
     @Override
     public void resetStream() {
         onStartup = true;
-        documentChannelOutput.poison(threads);
+        documentChannel.out().poison(1);
     }
 
     @Override
     public void closeStream() {
-        documentChannelOutput.poison(threads);
+        documentChannel.out().poison(1);
         try {
             runner.join();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new MetafactureException(e);
         }
     }
 }
