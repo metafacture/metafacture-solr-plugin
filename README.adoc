@@ -8,7 +8,7 @@ A plugin for link:https://github.com/metafacture/metafacture-core[metafacture] t
 image::https://jitpack.io/v/metafacture/metafacture-solr-plugin.svg[link="https://jitpack.io/#metafacture/metafacture-solr-plugin"]
 
 ```
-gradlew test fatJar
+bash gradlew test fatJar
 ```
 
 Produces `metafacture-solr-VERSION-plugin.jar` in `build/libs` .
