@@ -1,4 +1,4 @@
-"records.formeta"
+FLUX_DIR + "records.formeta"
 | open-file
 | as-lines
 | decode-formeta
