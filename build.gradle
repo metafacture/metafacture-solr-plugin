@@ -24,9 +24,10 @@ dependencies {
 }
 
 task fatJar(type: Jar) {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
-    archiveName = archivesBaseName.replace('-plugin', '') + '-' + version + '-plugin' + '.jar'
+    archiveFileName = archivesBaseName.replace('-plugin', '') + '-' + version + '-plugin' + '.jar'
     with jar
 }
