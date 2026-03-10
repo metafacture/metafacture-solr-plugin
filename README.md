@@ -10,7 +10,7 @@ A plugin for [metafacture](https://github.com/metafacture/metafacture-core) that
 <img src="https://jitpack.io/v/metafacture/metafacture-solr-plugin.svg" alt="https://jitpack.io/v/metafacture/metafacture-solr-plugin.svg" />
 </figure>
 
-`bash gradlew test fatJar`
+`sh gradlew test fatJar`
 
 Produces `metafacture-solr-VERSION-plugin.jar` in `build/libs` .
 
@@ -96,11 +96,10 @@ A sink that commits Solr Input Documents to a Apache Solr instance.
 
 #### Syntax
 
-`to-solr(url, \[core\], \[batchSize\], \[commitWithinMs\], \[threads\], \[maxRetries\], \[waitMs\])`
+`to-solr([url])`
+Required parameter `url` sets the URL to Solr Server.
 
-#### Parameters
-
-- `url`: URL to Solr Server.
+#### Options
 
 - `core`: Solr Core (Default: default)
 
@@ -120,4 +119,4 @@ Minimal case:
 
 `... | to-solr("https://example.com/solr/", core="test");`
 
-`... | to-solr(url="https://example.com/solr/", core="test", batchSize="2", commitWithinMs="1000", threads="2");`
+`... | to-solr("https://example.com/solr/", core="test", batchSize="2", commitWithinMs="1000", threads="2");`
