@@ -96,7 +96,7 @@ A sink that commits Solr Input Documents to a Apache Solr instance.
 
 #### Syntax
 
-`to-solr([url])`
+`to-solr("<url>")`
 Required parameter `url` sets the URL to Solr Server.
 
 #### Options
